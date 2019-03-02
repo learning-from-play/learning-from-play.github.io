@@ -14,3 +14,59 @@ Videos of the performed experiments are available at [site]
 Figure 1: caption
 </figcaption>
 </div>
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/tasks960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<figcaption>
+Figure 1: caption
+</figcaption>
+</div>
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/runs960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<figcaption>
+Figure 1: caption
+</figcaption>
+</div>
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/retry960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<figcaption>
+Figure 1: caption
+</figcaption>
+</div>
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/failures960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<figcaption>
+Figure 1: caption
+</figcaption>
+</div>
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/compose2960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<figcaption>
+Figure 1: caption
+</figcaption>
+</div>
+
+<div class="figure">
+<img src="assets/fig/lmp_teaser4.svg" style="margin: 0; width: 80%;"/>
+<figcaption>
+Figure 2: 
+</figcaption>
+</div>
+
+<div class="figure">
+<img src="assets/fig/lmp_inference4.svg" style="margin: 0; width: 80%;"/>
+<figcaption>
+Figure 3: 
+</figcaption>
+</div>
+
+<div class="figure">
+<img src="assets/fig/tsne.svg" style="margin: 0; width: 80%;"/>
+<figcaption>
+Figure : 
+</figcaption>
+</div>
