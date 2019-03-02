@@ -1,4 +1,6 @@
-# Learning Latent Dynamics for Planning from Pixels
+# Learning Latent Plans from Play
+
+Markdown from https://github.com/planetrl/planetrl.github.io
 
 This repo contains the source for the article.
 
@@ -16,8 +18,8 @@ This repo contains the source for the article.
 
 ### Instructions to Build and Test
 ```bash
-git clone https://github.com/planetrl/planetrl.github.io.git
-cd planetrl.github.io
+git clone https://github.com/learning-from-play/learning-from-play.github.io.git
+cd learning-from-play.github.io
 npm install
 chmod +x ./bin/*
 ```
