@@ -11,7 +11,7 @@ Videos of the performed experiments are available at [site]
 <div class="figure">
 <video class="b-lazy" data-src="assets/mp4/play_data640x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
 <figcaption>
-Figure 1: caption
+Figure 1: Play data collected from human tele-operation.
 </figcaption>
 </div>
 
@@ -23,30 +23,30 @@ Figure 1: caption
 </div>
 
 <div class="figure">
-<video class="b-lazy" data-src="assets/mp4/runs960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<video class="b-lazy" data-src="assets/mp4/runs960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
 <figcaption>
-Figure 1: caption
+Figure 1: Some successful runs.
 </figcaption>
 </div>
 
 <div class="figure">
-<video class="b-lazy" data-src="assets/mp4/retry960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<video class="b-lazy" data-src="assets/mp4/retry960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
 <figcaption>
-Figure 1: caption
+Figure 1: Retry behaviors emerges naturally.
 </figcaption>
 </div>
 
 <div class="figure">
-<video class="b-lazy" data-src="assets/mp4/failures960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<video class="b-lazy" data-src="assets/mp4/failures960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
 <figcaption>
-Figure 1: caption
+Figure 1: Some failure cases.
 </figcaption>
 </div>
 
 <div class="figure">
-<video class="b-lazy" data-src="assets/mp4/compose2960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<video class="b-lazy" data-src="assets/mp4/compose2960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
 <figcaption>
-Figure 1: caption
+Figure 1: Composing 2 tasks.
 </figcaption>
 </div>
 
