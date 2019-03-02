@@ -6,20 +6,12 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
   <meta name="theme-color" content="#1a4067" />
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133908598-1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'UA-133908598-1');
-  </script>
   <!-- SEO -->
   <meta property="og:title" content="Learning Latent Plans from Play" />
   <meta property="og:type" content="article" />
-  <meta property="og:description" content="PlaNet solves control tasks from pixels by planning in latent space." />
-  <meta property="og:image" content="https://planetrl.github.io/assets/img/planet_logo_rect.jpeg" />
-  <meta property="og:url" content="https://planetrl.github.io/" />
+  <meta property="og:description" content="Latent robotic plans are learned from unlabeled play data." />
+  <meta property="og:image" content="https://learning-from-play.github.io/assets/img/planet" />
+  <meta property="og:url" content="https://learning-from-play.github.io/" />
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Learning Latent Plans from Play" />
@@ -49,7 +41,7 @@
 <div class="byline">
   <div class="authors">
     <div class="author">
-        <a class="name" href="http://danijar.com/">Corey Lynch</a>
+        <a class="name" href="https://twitter.com/coreylynch">Corey Lynch</a>
         <a class="affiliation" href="https://g.co/brain">Google Brain</a>
     </div>
     <div class="author">
@@ -78,7 +70,7 @@
     </div>
   </div>
   <div class="date">
-    <div class="month">March 4th</div>
+    <div class="month">March 4</div>
     <div class="year">2019</div>
   </div>
   <div class="date">
@@ -91,6 +83,13 @@
 <p>We propose a self-supervised approach to learning a wide variety of manipulation skills from play data--unlabeled, unsegmented, undirected interaction with objects in an agent's environment. Learning from play offers three main advantages: 1) Collecting large amounts of play data is cheap and fast as it does not require staging the scene, resetting to an initial state, or labeling tasks, 2) It relaxes the need to have a discrete and rigid definition of skills/tasks prior to data collection. This allows the agent to focus on acquiring a continuum of manipulation skills, which can then be conditioned to perform a particular skill such as grasping. Furthermore, this data already includes ways to recover, retry or transition between different skills, which can be used to achieve a reactive closed-loop control policy, 3) It allows the robot to quickly learn a new skill from making use of pre-existing general abilities.
 Our proposed approach to learning new skills from unlabeled play data decouples high-level plan prediction from low-level action prediction by: first self-supervise learning of a latent planning space, then self-supervise learning of an action model that is conditioned on a latent plan. This results in a single task-agnostic policy conditioned on a user-provided goal. This policy can perform a wide variety of tasks in the environment where playing was observed. We train a single model on 3 hours of unlabeled play data and evaluate it on 18 zero-shot manipulation tasks, simply by feeding a goal state corresponding to each task. The supervised baseline model reaches 65% average task success, using 18 behavioral cloning policies trained on 100 demonstrations per task (1800 total). Our model completes the tasks with an average of 85% success using a single policy in zero shots (having never been explicitly trained on these tasks) using cheap unlabeled data. When the starting position is perturbed, our model trained on play data remains robust with an accuracy of 79% while the baseline drops to 23%. We also qualitatively observe retry-until-success behaviors naturally emerging, and a natural organization of plan space around tasks without ever being trained with task labels.
 Videos of the performed experiments are available at <a href="https://sites.google.com/view/sslmp">site</a></p>
+<h2>Introduction</h2>
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/play_data640x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<figcaption>
+Figure 1: caption
+</figcaption>
+</div>
 </dt-article>
 <dt-appendix>
 <h2>Acknowledgments</h2>

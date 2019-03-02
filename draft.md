@@ -5,3 +5,12 @@ Our proposed approach to learning new skills from unlabeled play data decouples 
 Videos of the performed experiments are available at [site]
 
 [site]: https://sites.google.com/view/sslmp
+
+## Introduction
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/play_data640x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<figcaption>
+Figure 1: caption
+</figcaption>
+</div>
