@@ -18,7 +18,7 @@ Figure 1: Play data collected from human tele-operation.
 <div class="figure">
 <video class="b-lazy" data-src="assets/mp4/tasks960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
 <figcaption>
-Figure 1: caption
+Figure 1: 18 tasks defined for evaluation only.
 </figcaption>
 </div>
 
@@ -51,7 +51,7 @@ Figure 1: Composing 2 tasks.
 </div>
 
 <div class="figure">
-<img src="assets/fig/lmp_teaser4.svg" style="margin: 0; width: 80%;"/>
+<img src="assets/fig/lmp_teaser5.svg" style="margin: 0; width: 80%;"/>
 <figcaption>
 Figure 2: 
 </figcaption>
