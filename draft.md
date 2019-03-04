@@ -8,6 +8,15 @@ Videos of the performed experiments are available at [site]
 
 ## Introduction
 
+There has been significant recent progress showing that robots can be trained to be competent specialists, learning individual skills like grasping (\citet{kalashnikov2018qt}), locomotion and dexterous manipulation (\citet{haarnoja2018soft}). In this work, we focus instead on the concept of a generalist robot: a single robot capable of performing many different complex tasks without having to relearn each from scratch. This is a long standing goal in both robotics and artificial intelligence.
+
+% \subsubsection{Learning From Play}
+\textbf{Learning From Play} is a fundamental and general method humans use to acquire a repertoire of complex skills and behaviors (\citet{wood2005play}). It has been hypothesized (\citet{pellegrini2007play}, \citet{robert1981animal}, \citet{hinde1983ethology}, \citet{sutton2009ambiguity}) that play is a crucial adaptive property--that an extended period of immaturity in humans gives children the opportunity to sample their environment, learning and practicing a wide variety of strategies and behaviors in a low-risk fashion that are effective in that niche.
+
+\textbf{What is play?}
+Developmental psychologists and animal behaviorists have offered multiple definitions (\citet{burghardt2005genesis}, \citet{robert1981animal}, \citet{hinde1983ethology}, \citet{pellegrini2002children}, \citet{sutton2009ambiguity}). \citet{burghardt2005genesis}, reviewing the different disciplines, distills play down to ``a non-serious variant of functional behavior" and gives three main criteria for classifying behavior as play: 1) Self-guided. Play is spontaneous and directed entirely by the intrinsic motivation, curiosity, or boredom of the agent engaging in it. 2) Means over ends. Although play might resemble functional behavior at times, the participant is typically more concerned with the behaviors themselves than the particular outcome. In this way play is ``incompletely functional". 3) Repeated, but varied. Play involves repeated behavior, but behavior that cannot be rigidly stereotyped. In this way, play should contain multiple ways of achieving the same outcome. Finally, all forms of play are considered to \textit{follow} exploration (\citet{belsky1981exploration}). That is, before children can play with an object, they must explore it first (\citet{hutt1966exploration}), inventorying its attributes and affordances. Only after rich object knowledge has been built up to act as the bases for play does play displace exploration.
+
+
 <div class="figure">
 <video class="b-lazy" data-src="assets/mp4/play_data640x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
 <figcaption>
