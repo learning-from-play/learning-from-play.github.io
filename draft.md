@@ -5,7 +5,7 @@ We propose learning from teleoperated play data as a way to scale up multi-task 
 [site]: https://learning-from-play.github.io
 
 <div class="figure">
-<video class="b-lazy" data-src="assets/mp4/8tasks960x270.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<video class="b-lazy" data-src="assets/mp4/lmp_8tasks960x400.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
 <figcaption>
 Figure 1: Composing 8 tasks.
 </figcaption>
