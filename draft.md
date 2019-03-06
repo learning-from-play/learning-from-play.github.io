@@ -2,7 +2,7 @@
 
 We propose learning from teleoperated play data as a way to scale up multi-task robotic skill learning.  *Learning from play* (LfP) offers three main advantages: 1) *It is cheap*. Large amounts of play data can be collected quickly as it does not require scene staging, task segmenting, or resetting to an initial state. 2) *It is general*. It contains both functional and non-functional behavior, relaxing the need for a predefined task distribution. 3) *It is rich*. Play involves repeated, varied behavior and naturally leads to high coverage of the possible interaction space. These properties distinguish play from expert demonstrations, which are rich, but expensive, and scripted unattended data collection, which is cheap, but insufficiently rich. Variety in play, however, presents a multimodality challenge to methods seeking to learn control on top. To this end, we introduce Play-LMP, a method designed to handle variability in the LfP setting by organizing it in an embedding space. Play-LMP jointly learns 1) reusable *latent plan representations* unsupervised from play data and 2) a *single goal-conditioned policy* capable of decoding inferred plans to achieve user-specified tasks. We show empirically that Play-LMP, despite not being trained on task-specific data, is capable of generalizing to 18 complex user-specified manipulation tasks with average success of **85.5%**, outperforming individual models trained on expert demonstrations (success of 70.3%). Furthermore, we find that play-supervised models, unlike their expert-trained counterparts, 1) are more *robust* to perturbations and 2) exhibit *retrying-till-success*. Finally, despite never being trained with task labels, we find that our agent learns to organize its latent plan space around functional tasks. Videos of the performed experiments are available at [here].
 
-[site]: https://learning-from-play.github.io
+[here]: https://learning-from-play.github.io
 
 <div class="figure">
 <video class="b-lazy" data-src="assets/mp4/lmp_8tasks960x400.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
@@ -23,18 +23,20 @@ Latent plan space is shaped by two stochastic encoders: plan recognition and pla
 
 ## Introduction
 
-There has been significant recent progress showing that robots can be trained to be competent specialists, learning individual skills like grasping <dt-cite key="kalashnikov2018qt"></dt-cite>, locomotion and dexterous manipulation <dt-cite key="haarnoja2018soft"></dt-cite>. In this work, we focus instead on the concept of a generalist robot: a single robot capable of performing many different complex tasks without having to relearn each from scratch--a long standing goal in both robotics and artificial intelligence.
+There has been significant recent progress showing that robots can be trained to be competent specialists, learning individual skills like grasping (<dt-cite key="kalashnikov2018qt">Kalashnikov et al.</dt-cite>), locomotion and dexterous manipulation (<dt-cite key="haarnoja2018soft">Haarnoja et al.</dt-cite>). In this work, we focus instead on the concept of a generalist robot: a single robot capable of performing many different complex tasks without having to relearn each from scratch--a long standing goal in both robotics and artificial intelligence.
 
-**Learning from play** is a fundamental and general method humans use to acquire a repertoire of complex skills and behaviors (\citet{wood2005play}). It has been hypothesized \cite{pellegrini2007play, robert1981animal, hinde1983ethology, sutton2009ambiguity} that play is a crucial adaptive property--that an extended period of immaturity in humans gives children the opportunity to sample their environment, learning and practicing a wide variety of strategies and behaviors in a low-risk fashion that are effective in that niche.
+**Learning from play** is a fundamental and general method humans use to acquire a repertoire of complex skills and behaviors (<dt-cite key="wood2005play">Wood and Attfield</dt-cite>). It has been hypothesized <dt-cite key="pellegrini2007play,robert1981animal,hinde1983ethology,sutton2009ambiguity"></dt-cite> that play is a crucial adaptive property--that an extended period of immaturity in humans gives children the opportunity to sample their environment, learning and practicing a wide variety of strategies and behaviors in a low-risk fashion that are effective in that niche.
 
 **What is play?**
-Developmental psychologists and animal behaviorists have offered multiple definitions \cite{burghardt2005genesis, robert1981animal, hinde1983ethology, pellegrini2002children, sutton2009ambiguity}. \citet{burghardt2005genesis}, reviewing the different disciplines, distills play down to ``a non-serious variant of functional behavior" and gives three main criteria for classifying behavior as play: 1) \emph{Self-guided}. Play is spontaneous and directed entirely by the intrinsic motivation, curiosity, or boredom of the agent engaging in it. 2) \emph{Means over ends}. Although play might resemble functional behavior at times, the participant is typically more concerned with the behaviors themselves than the particular outcome. In this way play is ``incompletely functional". 3) \emph{Repeated, but varied}. Play involves repeated behavior, but behavior that cannot be rigidly stereotyped. In this way, play should contain multiple ways of achieving the same outcome. Finally, all forms of play are considered to \textit{follow} exploration (\citet{belsky1981exploration}). That is, before children can play with an object, they must explore it first (\citet{hutt1966exploration}), inventorying its attributes and affordances. Only after rich object knowledge has been built up to act as the bases for play does play displace exploration.
+Developmental psychologists and animal behaviorists have offered multiple definitions <dt-cite key="burghardt2005genesis,robert1981animal,hinde1983ethology,pellegrini2002children,sutton2009ambiguity"></dt-cite>. <dt-cite key="burghardt2005genesis">Burghardt</dt-cite>, reviewing the different disciplines, distills play down to "a non-serious variant of functional behavior" and gives three main criteria for classifying behavior as play: 1) *Self-guided*. Play is spontaneous and directed entirely by the intrinsic motivation, curiosity, or boredom of the agent engaging in it. 2) *Means over ends*. Although play might resemble functional behavior at times, the participant is typically more concerned with the behaviors themselves than the particular outcome. In this way play is "incompletely functional". 3) *Repeated, but varied*. Play involves repeated behavior, but behavior that cannot be rigidly stereotyped. In this way, play should contain multiple ways of achieving the same outcome. Finally, all forms of play are considered to *follow* exploration (<dt-cite key="belsky1981exploration">Belsky and Most</dt-cite>). That is, before children can play with an object, they must explore it first (<dt-cite key="hutt1966exploration">Hutt</dt-cite>), inventorying its attributes and affordances. Only after rich object knowledge has been built up to act as the bases for play does play displace exploration.
 
-\textbf{Play-supervised Robotic Skill Learning:}
-In this work, we propose \textit{learning from play} data (LfP), or \emph{``play-supervision"}, as a way to scale up multi-task robotic skill learning. We intend to learn goal-conditioned control on top of a large collection of unscripted robot play data.
-But how do we define and implement robotic play, with all the same crucial properties of play previously identified? Voluntary and varied object interaction could in principle be collected by any agent equipped with 1) curiosity, boredom, or some intrinsic motivation drive \cite{forestier2017intrinsically, sansone2000intrinsic, schmidhuber1991possibility} and 2) a foundational understanding of object behavior to guide play, such as intuitive physics (\citet{spelke2007core}) and prior knowledge object attributes and affordances gained through exploration. However, building such agents is a challenging open problem in robotics.
+**Play-supervised Robotic Skill Learning:**
+In this work, we propose *learning from play* data (LfP), or *"play-supervision"*, as a way to scale up multi-task robotic skill learning. We intend to learn goal-conditioned control on top of a large collection of unscripted robot play data.
+But how do we define and implement robotic play, with all the same crucial properties of play previously identified? Voluntary and varied object interaction could in principle be collected by any agent equipped with 1) curiosity, boredom, or some intrinsic motivation drive <dt-cite key="forestier2017intrinsically,sansone2000intrinsic,schmidhuber1991possibility"></dt-cite> and 2) a foundational understanding of object behavior to guide play, such as intuitive physics (<dt-cite key="spelke2007core">Spelke and Kinzler</dt-cite>) and prior knowledge object attributes and affordances gained through exploration. However, building such agents is a challenging open problem in robotics.
 
-Instead, we collect a robot play dataset by allowing a user to teleoperate the robot in a playground environment, interacting with all the objects available in as many ways that they can think of. A human operator provides the necessary properties of curiosity, boredom, and affordance priors to guide rich object play. Human exploration and domain knowledge allow us to avoid the question of learning how \emph{to} play, and rather focus entirely on what can be learned \emph{from} play. 
+Instead, we collect a robot play dataset by allowing a user to teleoperate the robot in a playground environment, interacting with all the objects available in as many ways that they can think of. A human operator provides the necessary properties of curiosity, boredom, and affordance priors to guide rich object play. Human exploration and domain knowledge allow us to avoid the question of learning how *to* play, and rather focus entirely on what can be learned *from* play. 
+
+<dt-cite key=""></dt-cite>
 
 We show examples of the play data fed into our system in \fig{grid_playground}. We underline that this data is not task specific, but rather intends to cover as much as possible of the full object interaction space allowed by the environment\footnote{Play is typically characterized along object, locomotor, and social dimensions (\citet{burghardt2005genesis}). While there is nothing in principle that stops us from applying our methods to, say, locomotion play or combined locomotion and object play, in this work we focus on object play.}.
 
@@ -89,7 +91,7 @@ While our method does not require demonstrations to perform new tasks -- only th
 ## Method
 
 <div class="figure">
-<video class="b-lazy" data-src="assets/mp4/play_data516x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<video class="b-lazy" data-src="assets/mp4/play_data516x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 70%;"></video>
 <figcaption>
 Figure 1: Play data collected from human tele-operation.
 </figcaption>
@@ -104,7 +106,7 @@ $\mathcal{D} = \{(s_1, a_1), (s_2, a_2), \cdots, (s_T, a_T)\}$
 In our experiments, we define play data as the states and actions logged during human play teleoperation of a robot in a playground environment. Find an example of such data in \fig{grid_playground}.
 
 <div class="figure">
-<img src="assets/fig/lmp_inference4.svg" style="margin: 0; width: 50%;"/>
+<img src="assets/fig/lmp_inference4.svg" style="margin: 0; width: 60%;"/>
 <figcaption>
 Figure 3: 
 \caption{\textbf{Task-agnostic policy inference}.
@@ -112,6 +114,7 @@ The policy is conditioned on a latent plan which is sampled once from a plan dis
 The policy is also conditioned on the current state as well as the goal state desired by the user.
 </figcaption>
 </div>
+
 
 \subsection{\lmpns}
 \label{sec:lmp_description}
