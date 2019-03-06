@@ -105,15 +105,15 @@ $\mathcal{D} = \{(s_1, a_1), (s_2, a_2), \cdots, (s_T, a_T)\}$
 
 In our experiments, we define play data as the states and actions logged during human play teleoperation of a robot in a playground environment. Find an example of such data in \fig{grid_playground}.
 
-<figure class=".l-page.side">
-<img src="assets/fig/lmp_inference4.svg" style="margin: 0;"/>
+<div class="figure">
+<img src="assets/fig/lmp_inference4.svg" style="margin: 0; width: 60%;"/>
 <figcaption>
 Figure 3: 
 \caption{\textbf{Task-agnostic policy inference}.
 The policy is conditioned on a latent plan which is sampled once from a plan distribution (inferred from the current and goal states).
 The policy is also conditioned on the current state as well as the goal state desired by the user.
 </figcaption>
-</figure>
+</div>
 
 
 \subsection{\lmpns}
