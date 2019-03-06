@@ -177,7 +177,7 @@ The inputs at test time are the conventional inputs to a goal-conditioned contro
 For example $s_i$ could be the end effector resting over the table, and $s_g$ could be the end effector pressing the green button. Together, ($s_i$, $s_g$) specify a test time manipulation task.
 
 Our trained agent achieves goal-conditioned control as follows: 1) feed $s_i$ and $s_g$ into its trained plan proposal network $\Psi$, which outputs a distribution over all learned latent plans that might connect $s_i$ to $s_g$. 2) sample a single latent plan $z$,
-3) hand ($s_i$, $s_g$, $z$) to plan and goal-conditioned policy $\pi$, outputting a distribution over low-level actions. 4) Sample an action, $a_t$, move to the next state, then repeat 3). 
+3) hand ($s_i$, $s_g$, $z$) to plan and goal-conditioned policy $\pi$, outputting a distribution over low-level actions. 4) Sample an action, $a_t$, move to the next state $s_t$, then repeat 3). 
 
 Note that during test time rollouts, we keep the $z$ input to the policy fixed over $\kappa$ steps (matching the planning horizon it was trained with). That is, it is free to replan using the current state $s_i$ and fixed goal state $s_g$ every $\kappa$ steps. In our experiments, our agent gets observations and takes low-level actions at 30hz. We set $\kappa$ to 32, meaning that the agent replans at roughly $1$hz. See Figure 5 for details.
 
