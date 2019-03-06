@@ -1,6 +1,6 @@
 ## Abstract
 
-We propose learning from teleoperated play data as a way to scale up multi-task robotic skill learning.  Learning from play (LfP) offers three main advantages: 1) It is cheap. Large amounts of play data can be collected quickly as it does not require scene staging, task segmenting, or resetting to an initial state. 2) It is general. It contains both functional and non-functional behavior, relaxing the need for a predefined task distribution. 3) It is rich. Play involves repeated, varied behavior and naturally leads to high coverage of the possible interaction space. These properties distinguish play from expert demonstrations, which are rich, but expensive, and scripted unattended data collection, which is cheap, but insufficiently rich. Variety in play, however, presents a multimodality challenge to methods seeking to learn control on top. To this end, we introduce Play-LMP, a method designed to handle variability in the LfP setting by organizing it in an embedding space. Play-LMP jointly learns 1) reusable latent plan representations unsupervised from play data and 2) a single goal-conditioned policy capable of decoding inferred plans to achieve user-specified tasks. We show empirically that Play-LMP, despite not being trained on task-specific data, is capable of generalizing to 18 complex user-specified manipulation tasks with average success of 85.5%, outperforming individual models trained on expert demonstrations (success of 70.3%). Furthermore, we find that play-supervised models, unlike their expert-trained counterparts, 1) are more robust to perturbations and 2) exhibit retrying-till-success. Finally, despite never being trained with task labels, we find that our agent learns to organize its latent plan space around functional tasks. Videos of the performed experiments are available at [here].
+We propose learning from teleoperated play data as a way to scale up multi-task robotic skill learning.  *Learning from play* (LfP) offers three main advantages: 1) *It is cheap*. Large amounts of play data can be collected quickly as it does not require scene staging, task segmenting, or resetting to an initial state. 2) *It is general*. It contains both functional and non-functional behavior, relaxing the need for a predefined task distribution. 3) *It is rich*. Play involves repeated, varied behavior and naturally leads to high coverage of the possible interaction space. These properties distinguish play from expert demonstrations, which are rich, but expensive, and scripted unattended data collection, which is cheap, but insufficiently rich. Variety in play, however, presents a multimodality challenge to methods seeking to learn control on top. To this end, we introduce Play-LMP, a method designed to handle variability in the LfP setting by organizing it in an embedding space. Play-LMP jointly learns 1) reusable *latent plan representations* unsupervised from play data and 2) a *single goal-conditioned policy* capable of decoding inferred plans to achieve user-specified tasks. We show empirically that Play-LMP, despite not being trained on task-specific data, is capable of generalizing to 18 complex user-specified manipulation tasks with average success of **85.5%**, outperforming individual models trained on expert demonstrations (success of 70.3%). Furthermore, we find that play-supervised models, unlike their expert-trained counterparts, 1) are more *robust* to perturbations and 2) exhibit *retrying-till-success*. Finally, despite never being trained with task labels, we find that our agent learns to organize its latent plan space around functional tasks. Videos of the performed experiments are available at [here].
 
 [site]: https://learning-from-play.github.io
 
@@ -138,19 +138,22 @@ We now describe each of the modules in detail and the losses used to train them.
 \subsubsection{Plan Recognizer}
 Consider a sequence of state action pairs $\tau$ of window length $\kappa$ sampled at random from the play dataset $\mathcal{D}$:
 
-\begin{equation}
+<!-- <div style="text-align:left;">
+<img src="assets/img/formula2.png" style="display: block; margin: auto; width: 75%;"/>
+</div>
+ -->
+$\tau = \{(s_{k:k+\kappa}, a_{k:k+\kappa})\} \thicksim \mathcal{D}$
+<!-- \begin{equation}
 \tau = \{(s_{k:k+\kappa}, a_{k:k+\kappa})\} \thicksim \mathcal{D}
 \end{equation}
-
+ -->
 We define a stochastic sequence encoder, $\Phi$, referred to throughout the paper as the ``plan recognizer", which takes as input $\tau$ and outputs a distribution over latent plans. Intuitively, the idea is for the encoder not to learn to recognize plan codes as single points, but as
 ellipsoidal regions in latent space, forcing the codes
 to fill the space rather than memorizing individual training data. We parameterize our sequence encoder $\Phi$ with a bidirectional recurrent neural network with parameters $\theta_\Phi$, which produces means and variances in latent plan space from $\tau$.
 
-\begin{equation}
-\mu_\Phi, \sigma_\Phi = \Phi(\tau; \theta_\Phi)\\
-\end{equation}
+$\mu_\Phi, \sigma_\Phi = \Phi(\tau, \theta_\Phi)$
 
-As is typical with training VAEs, we assume the encoder has a diagonal covariance matrix, i.e. $z \thicksim \mathcal{N}(\mu_\Phi, \textrm{diag}(\sigma_\Phi^2))$.
+As is typical with training VAEs, we assume the encoder has a diagonal covariance matrix, i.e. $z \sim N(\mu_\Phi, \textrm{diag}(\sigma_\Phi^2))$.
 Individual latent plans $z$ are sampled from this distribution at training time via the "reparameterization trick" (\citet{kingma2013auto}) and handed to a latent plan and goal conditioned action decoder (described in the next section) to be decoded into reconstructed actions.
 % The sequence encoder is then trained with action reconstruction loss $\mathcal{L}_{\pi}$ and the self-supervised
 While we could in principle use the sequence encoder at test time to perform full sequence imitation, in this work we restrict our attention to tasks specified by individual user-provided goal states. Therefore, the sequence encoder is only used at training time to help learn a latent plan space, and is discarded at test time.
@@ -159,16 +162,11 @@ While we could in principle use the sequence encoder at test time to perform ful
 \label{sec:plan_encoder}
 We also define a plan proposal network, $\Psi$, which maps initial state $s_i$ and goal state $s_g$ to a distribution over latent plans. The goal of this network is to output the full distribution of possible plans or behaviors that an agent could execute to get from a particular initial state to a particular goal state. We parameterize the plan encoder $\Psi$ with a multi-layer neural network with parameters $\theta_\Psi$, which produces means $\mu_\Psi$ and variances $\sigma_\Psi$ in latent plan space from the $s_i$ to $s_g$\footnote{For simplicity, we choose a unimodal multivariate Gaussian to represent distributions in latent plan space; nothing in principle stops us from using more complicated distributions}. 
 
-\begin{equation}
-\mu_\Psi, \sigma_\Psi = \Psi(s_i, s_g; \theta_\Psi)\\
-\end{equation}
+$\mu_\Psi, \sigma_\Psi = \Psi(s_i, s_g; \theta_\Psi)$
 
 Similarly we assume the plan encoder has a diagonal covariance matrix, i.e. $z \thicksim \mathcal{N}(\mu_\Psi, \textrm{diag}(\sigma_\Psi^2))$. Note that $\Psi$ is a stochastic encoder, which outputs a distribution in the same latent plan space as $\Phi$. Both $\Phi$ and $\Psi$ are trained jointly by minimizing the KL divergence between the two distributions:
 
-\begin{equation}
-\mathcal{L}_{\textrm{KL}} = \textrm{KL}\Big(\mathcal{N}(z|\mu_\Phi, \textrm{diag}(\sigma_\Phi^2)) ~||~ \mathcal{N}(z|\mu_\Psi, \textrm{diag}(\sigma_\Psi^2)) \Big)
-\label{eq:kl_loss}
-\end{equation}
+$\mathcal{L}_{KL} = KL\Big(\mathcal{N}(z|\mu_\Phi, diag(\sigma_\Phi^2)) ~||~ \mathcal{N}(z|\mu_\Psi,diag(\sigma_\Psi^2)) \Big)$
 
 Intuitively, $\mathcal{L}_{\textrm{KL}}$ forces the plan distribution output by the planner $\Psi$ to place high probability on actual latent plans recognized during play. Simultaneously it enforces a regular geometry over codes output by the plan recognizer $\Phi$, allowing plausible plans to be sampled at test time from regions of latent space that have high probability under the conditional prior $\Psi$.
 
@@ -183,10 +181,15 @@ Here we describe how we train our task-agnostic policy to achieve user-specified
 The policy is trained via maximum likelihood to reconstruct the actions taken during the sequence sampled from play.
 To obtain action predictions at training time, we sample $z$ once from the distribution output by $\Phi$ (which has been conditioned on the entire state-action sequence $\tau$), then for each timestep $t$ in the sequence, we compute actions $a_t$ from inputs $s_t$, $s_g$, and $z$. The loss term $\mathcal{L}_{\pi}$ corresponding to the action prediction is determined as follows:\footnote{We can optionally also have the decoder output state predictions, and adds another loss term penalizing a state reconstruction loss.}
 
-\begin{equation}
+<!-- <div style="text-align:left;">
+<img src="assets/img/formula6.png" style="display: block; margin: auto; width: 75%;"/>
+</div> -->
+
+$\mathcal{L}_\pi = -\frac{1}{\kappa} \sum_{t=k}^{k+\kappa} log\big(\pi(a_t | s_t, s_g, z)\big)$
+<!-- \begin{equation}
     \mathcal{L}_\pi = -\frac{1}{\kappa} \sum_{t=k}^{k+\kappa} \textrm{ln}\big(\pi(a_t | s_t, s_g, z)\big)
     \label{eq:action_loss}
-\end{equation}
+\end{equation} -->
 
 As mentioned earlier, at test time $\Phi$ is discarded and we sample $z$ from the distribution output by plan proposal network $\Psi$, conditioned on $s_t$, $s_g$ as described in Section \ref{sec:plan_encoder}.
 The motivation for this architecture is to relieve the policy from having to representing multiple valid action trajectory solutions implicitly. Since $\Phi$ processes the full state-action sequence $\tau$ to be reconstructed, a plan sampled from $\Phi$ should provide disambiguating information to the policy at training time, converting a multimodal problem (learn every plan) to a unimodal one (learn to decode this specific plan).
@@ -195,11 +198,16 @@ The motivation for this architecture is to relieve the policy from having to rep
 Following \citet{higgins2016beta}, we introduce a weight
 $\beta$, controlling $\mathcal{L}_{\textrm{KL}}$'s contribution to the total loss. Setting $\beta$ \textless 1 was sufficient to avoid ``posterior collapse'' (\citet{45404}), a commonly identified problem in VAE training in which an over-regularized model combined with a powerful decoder tends to ignores the latent variable $z$. The full \lmp training objective is:
 
-\begin{equation}
+<!-- <div style="text-align:left;">
+<img src="assets/img/formula7.png" style="display: block; margin: auto; width: 75%;"/>
+</div> -->
+
+$\mathcal{L}_{LMP} = \frac{1}{\kappa} \mathcal{L}_\pi + \beta \mathcal{L}_{KL}$
+<!-- \begin{equation}
 \mathcal{L}_{LMP} = \frac{1}{\kappa} \mathcal{L}_\pi + \beta \mathcal{L}_{\textrm{KL}}
 \label{eq:total_loss}
 \end{equation}
-
+ -->
 We describe the full \lmp minibatch training pseudocode in Algorithm~\ref{alg:lmp}.
 
 \begin{algorithm}[tb]

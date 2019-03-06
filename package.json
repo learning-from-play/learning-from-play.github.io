@@ -2,9 +2,10 @@
   "name": "worldmodels",
   "version": "0.0.1",
   "dependencies": {
+    "argparse": "^1.0.10",
     "markdown-it": "*",
-    "markdown-it-katex": "*",
-    "markdown-it-center-text": "*"
+    "markdown-it-center-text": "*",
+    "markdown-it-katex": "*"
   },
   "repository": {
     "type": "git",
