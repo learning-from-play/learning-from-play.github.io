@@ -1,132 +1,24 @@
 ## Abstract
 
-We propose a self-supervised approach to learning a wide variety of manipulation skills from play data--unlabeled, unsegmented, undirected interaction with objects in an agent's environment. Learning from play offers three main advantages: 1) Collecting large amounts of play data is cheap and fast as it does not require staging the scene, resetting to an initial state, or labeling tasks, 2) It relaxes the need to have a discrete and rigid definition of skills/tasks prior to data collection. This allows the agent to focus on acquiring a continuum of manipulation skills, which can then be conditioned to perform a particular skill such as grasping. Furthermore, this data already includes ways to recover, retry or transition between different skills, which can be used to achieve a reactive closed-loop control policy, 3) It allows the robot to quickly learn a new skill from making use of pre-existing general abilities.
-Our proposed approach to learning new skills from unlabeled play data decouples high-level plan prediction from low-level action prediction by: first self-supervise learning of a latent planning space, then self-supervise learning of an action model that is conditioned on a latent plan. This results in a single task-agnostic policy conditioned on a user-provided goal. This policy can perform a wide variety of tasks in the environment where playing was observed. We train a single model on 3 hours of unlabeled play data and evaluate it on 18 zero-shot manipulation tasks, simply by feeding a goal state corresponding to each task. The supervised baseline model reaches 65\% average task success, using 18 behavioral cloning policies trained on 100 demonstrations per task (1800 total). Our model completes the tasks with an average of 85\% success using a single policy in zero shots (having never been explicitly trained on these tasks) using cheap unlabeled data. When the starting position is perturbed, our model trained on play data remains robust with an accuracy of 79\% while the baseline drops to 23\%. We also qualitatively observe retry-until-success behaviors naturally emerging, and a natural organization of plan space around tasks without ever being trained with task labels.
-Videos of the performed experiments are available at [site]
+We propose learning from teleoperated play data (LfP) as a way to scale up multi-task robotic skill learning.  Learning from play (LfP) offers three main advantages: 1) It is cheap. Large amounts of play data can be collected quickly as it does not require scene staging, task segmenting, or resetting to an initial state. 2) It is general. It contains both functional and non-functional behavior, relaxing the need for a predefined task distribution. 3) It is rich. Play involves repeated, varied behavior and naturally leads to high coverage of the possible interaction space. These properties distinguish play from expert demonstrations, which are rich, but expensive, and scripted unattended data collection, which is cheap, but insufficiently rich. Variety in play, however, presents a multimodality challenge to methods seeking to learn control on top. To this end, we introduce Play-LMP, a method designed to handle variability in the LfP setting by organizing it in an embedding space. Play-LMP jointly learns 1) reusable latent plan representations unsupervised from play data and 2) a single goal-conditioned policy capable of decoding inferred plans to achieve user-specified tasks. We show empirically that Play-LMP, despite not being trained on task-specific data, is capable of generalizing to 18 complex user-specified manipulation tasks with average success of 85.5%, outperforming individual models trained on expert demonstrations (success of 70.3%). Furthermore, we find that play-supervised models, unlike their expert-trained counterparts, 1) are more robust to perturbations and 2) exhibit retrying-till-success. Finally, despite never being trained with task labels, we find that our agent learns to organize its latent plan space around functional tasks. Videos of the performed experiments are available at [site]
 
-[site]: https://sites.google.com/view/sslmp
+[site]: https://learning-from-play.github.io
 
-## Introduction
-
-There has been significant recent progress showing that robots can be trained to be competent specialists, learning individual skills like grasping (\citet{kalashnikov2018qt}), locomotion and dexterous manipulation (\citet{haarnoja2018soft}). In this work, we focus instead on the concept of a generalist robot: a single robot capable of performing many different complex tasks without having to relearn each from scratch. This is a long standing goal in both robotics and artificial intelligence.
-
-#### Learning From Play
-\textbf{Learning From Play} is a fundamental and general method humans use to acquire a repertoire of complex skills and behaviors (<dt-cite key="wood2005play"></dt-cite>). It has been hypothesized (\citet{pellegrini2007play}, \citet{robert1981animal}, \citet{hinde1983ethology}, \citet{sutton2009ambiguity}) that play is a crucial adaptive property--that an extended period of immaturity in humans gives children the opportunity to sample their environment, learning and practicing a wide variety of strategies and behaviors in a low-risk fashion that are effective in that niche.
-
-#### What is play?
-Developmental psychologists and animal behaviorists have offered multiple definitions (\citet{burghardt2005genesis}, \citet{robert1981animal}, \citet{hinde1983ethology}, \citet{pellegrini2002children}, \citet{sutton2009ambiguity}). \citet{burghardt2005genesis}, reviewing the different disciplines, distills play down to ``a non-serious variant of functional behavior" and gives three main criteria for classifying behavior as play: 1) Self-guided. Play is spontaneous and directed entirely by the intrinsic motivation, curiosity, or boredom of the agent engaging in it. 2) Means over ends. Although play might resemble functional behavior at times, the participant is typically more concerned with the behaviors themselves than the particular outcome. In this way play is ``incompletely functional". 3) Repeated, but varied. Play involves repeated behavior, but behavior that cannot be rigidly stereotyped. In this way, play should contain multiple ways of achieving the same outcome. Finally, all forms of play are considered to \textit{follow} exploration (\citet{belsky1981exploration}). That is, before children can play with an object, they must explore it first (\citet{hutt1966exploration}), inventorying its attributes and affordances. Only after rich object knowledge has been built up to act as the bases for play does play displace exploration.
-
-
-#Method
-
-##Play data
-
-Consider a long sequence of play data, which includes unlabeled, unsegmented sequence of states and actions:
-
-$\mathcal{D} = \{(s_1, a_1), (s_2, a_2), \cdots, (s_T, a_T)\}$
-
-
-
-
-
-<div class="figure">
-<video class="b-lazy" data-src="assets/mp4/play_data516x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
-<figcaption>
-Figure 1: Play data collected from human tele-operation.
-</figcaption>
-</div>
-
-<div class="figure">
-<video class="b-lazy" data-src="assets/mp4/tasks960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
-<figcaption>
-Figure 1: 18 tasks defined for evaluation only.
-</figcaption>
-</div>
-
-<div class="figure">
-<video class="b-lazy" data-src="assets/mp4/runs960x398.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
-<figcaption>
-Figure 1: Some successful runs.
-</figcaption>
-</div>
-
-<div class="figure">
-<video class="b-lazy" data-src="assets/mp4/retry960x398.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
-<figcaption>
-Figure 1: Retry behaviors emerges naturally.
-</figcaption>
-</div>
-
-<div class="figure">
-<video class="b-lazy" data-src="assets/mp4/failures960x398.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
-<figcaption>
-Figure 1: Some failure cases.
-</figcaption>
-</div>
-
-<div class="figure">
-<video class="b-lazy" data-src="assets/mp4/compose2960x500.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
-<figcaption>
-Figure 1: Composing 2 tasks.
-</figcaption>
-</div>
+______
 
 <div class="figure">
 <img src="assets/fig/lmp_teaser5.svg" style="margin: 0; width: 80%;"/>
 <figcaption>
-Figure 2: 
-</figcaption>
-</div>
-
-Our work on learning latent plans is most related to \citet{hausman2018learning}, who present a method for reinforcement learning of closely related manipulation skills, parameterized via an explicit skill embedding space. They assume a fixed set of initial tasks at training time, with access to accompanying per task reward functions to drive policy and embedding learning.
-In contrast, our method relies on unsegmented, unlabeled play data with no predefined task training distribution.
-It additionally requires no reward function, and performs policy training via supervised learning, yielding orders of magnitude greater sample efficiency. Finally, they generalize to new skills by freezing the learned policy and learning a new mapping to the embedding space, whereas \lmp generalizes to new tasks simply by feeding a new current and goal state pair to the trained plan proposal network.
-
-Our learning method for latent plans is self-supervised, and relates to other works in self-supervised representation learning from sequences \citet{wang2015unsupervised,misra2016shuffle,Sermanet2017TCN}.
-% Our learning method for latent plans is self-supervised, and relates to other works in self-supervised representation learning from sequences (\citet{wang2015unsupervised,misra2016shuffle,Sermanet2017TCN}).
-
-<div class="figure">
-<img src="assets/fig/lmp_inference4.svg" style="margin: 0; width: 50%;"/>
-<figcaption>
-Figure 3: 
-</figcaption>
-</div>
-
-Lastly, our work is related to prior research on few-shot learning of skills from demonstrations (\citet{finn2017one,wang2017robust,DBLP:journals/corr/JamesDJ17,DBLP:journals/corr/abs-1806-10166,DBLP:journals/corr/DuanASHSSAZ17}).
-While our method does not require demonstrations to perform new tasks -- only the goal state -- it can readily incorporate demonstrations simply by treating each subsequent frame as a goal. In contrast to prior work on few-shot learning from demonstration that require a meta-training phase (\citet{finn2017one}), our method does not require any expensive task-specific demonstrations for training or a predefined task distribution, only non-specific play data. In contrast to prior work that uses reinforcement learning (\citet{DBLP:journals/corr/abs-1810-05017}), it does not require any reward function or costly RL phase.
-
-<div class="figure">
-<img src="assets/fig/tsne.svg" style="margin: 0; width: 80%;"/>
-<figcaption>
-Figure : 
-</figcaption>
-</div>
-
-
-We propose learning from teleoperated play data (LfP) as a way to scale up multi-task robotic skill learning.  Learning from play (LfP) offers three main advantages: 1) It is cheap. Large amounts of play data can be collected quickly as it does not require scene staging, task segmenting, or resetting to an initial state. 2) It is general. It contains both functional and non-functional behavior, relaxing the need for a predefined task distribution. 3) It is rich. Play involves repeated, varied behavior and naturally leads to high coverage of the possible interaction space. These properties distinguish play from expert demonstrations, which are rich, but expensive, and scripted unattended data collection, which is cheap, but insufficiently rich. Variety in play, however, presents a multimodality challenge to methods seeking to learn control on top. To this end, we introduce Play-LMP, a method designed to handle variability in the LfP setting by organizing it in an embedding space. Play-LMP jointly learns 1) reusable latent plan representations unsupervised from play data and 2) a single goal-conditioned policy capable of decoding inferred plans to achieve user-specified tasks. We show empirically that Play-LMP, despite not being trained on task-specific data, is capable of generalizing to 18 complex user-specified manipulation tasks with average success of 85.5\%, outperforming individual models trained on expert demonstrations (success of 70.3\%). Furthermore, we find that play-supervised models, unlike their expert-trained counterparts, 1) are more robust to perturbations and 2) exhibit retrying-till-success. Finally, despite never being trained with task labels, we find that our agent learns to organize its latent plan space around functional tasks. Videos of the performed experiments are available at {\href{https://learning-from-play.github.io}{learning-from-play.github.io}}
-% NEW ABSTRACT
- 
-\end{abstract}
-
-\IEEEpeerreviewmaketitle
-
-\begin{figure}[htb]
-\begin{center}
-\centerline{\includegraphics[width=.95\linewidth]{models/lmp_teaser5}}
-\caption{\textbf{\lmpns:} A single model that self-supervises control from play data, then generalizes to a wide variety of manipulation tasks. Play-LMP 1) samples random windows of experience from a memory of play data. 2) learns to recognize and organize a repertoire of behaviors executed during play in a \textbf{latent plan space}, 3) trains a policy, conditioned on current state, goal state, and a sampled latent plan to reconstruct the actions in the selected window.
+Figure 1. Play-LMP: A single model that self-supervises control from play data, then generalizes to a wide variety of manipulation tasks. Play-LMP 1) samples random windows of experience from a memory of play data. 2) learns to recognize and organize a repertoire of behaviors executed during play in a \textbf{latent plan space}, 3) trains a policy, conditioned on current state, goal state, and a sampled latent plan to reconstruct the actions in the selected window.
 Latent plan space is shaped by two stochastic encoders: plan recognition and plan proposal. Plan recognition takes the entire sequence, recognizing the exact behavior executed. Plan proposal takes the initial and final state, outputting a distribution over all possible behaviors that connect initial state to final. We minimize the KL divergence between the two encoders, making plan proposal assign high likelihood to behaviors that were actually executed during play.
-}
-\label{fig:teaser}
-\vspace{-0.3in}
-\end{center}
-\end{figure} 
+</figcaption>
+</div>
 
-% intro %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}
+## Introduction
 
-There has been significant recent progress showing that robots can be trained to be competent specialists, learning individual skills like grasping (\citet{kalashnikov2018qt}), locomotion and dexterous manipulation (\citet{haarnoja2018soft}). In this work, we focus instead on the concept of a generalist robot: a single robot capable of performing many different complex tasks without having to relearn each from scratch--a long standing goal in both robotics and artificial intelligence.
+There has been significant recent progress showing that robots can be trained to be competent specialists, learning individual skills like grasping (<dt-cite key="kalashnikov2018qt"></dt-cite>), locomotion and dexterous manipulation (\citet{haarnoja2018soft}). In this work, we focus instead on the concept of a generalist robot: a single robot capable of performing many different complex tasks without having to relearn each from scratch--a long standing goal in both robotics and artificial intelligence.
 
-% \subsubsection{Learning From Play}
+#### Learning From Play
 \textbf{Learning from play} is a fundamental and general method humans use to acquire a repertoire of complex skills and behaviors (\citet{wood2005play}). It has been hypothesized \cite{pellegrini2007play, robert1981animal, hinde1983ethology, sutton2009ambiguity} that play is a crucial adaptive property--that an extended period of immaturity in humans gives children the opportunity to sample their environment, learning and practicing a wide variety of strategies and behaviors in a low-risk fashion that are effective in that niche.
 
 \textbf{What is play?}
@@ -167,8 +59,7 @@ In this paper, we introduce the following contributions:
 \item \lmpns, a method that jointly learns 1) reusable latent plan representations from play data and 2) goal-conditioned control capable of generalizing to a wide variety of complex user-specified manipulation tasks.
 \end{itemize}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Related Work}
+## Related Work
 
 Robotic learning methods generally require some form of supervision to acquire behavioral skills -- conventionally, this supervision either consists of a cost or reward signal, as in reinforcement learning \cite{sutton2018reinforcement,kober2013reinforcement,deisenroth2013survey}, or demonstrations, as in imitation learning \citet{pastor2009learning,argall2009survey}. However, both of these sources of supervision require considerable human effort to obtain: reward functions must be engineered by hand, which can be highly non-trivial in environments with natural observations, and demonstrations must be provided manually for each task. When using high-capacity models, hundreds or even thousands of demonstrations may be required for each task (\citet{DBLP:journals/corr/abs-1710-04615,DBLP:journals/corr/RahmatizadehABL17,rajeswaran2017learning,DBLP:journals/corr/DuanASHSSAZ17}).
 In this paper, we instead aim to learn general-purpose policies that can flexibly accomplish a wide range of user-specified tasks, using data that is not task-specific and is easy to collect. Our model can in principle use \emph{any} past experience for training, but the particular data collection approach we used is based on human-provided play data.
@@ -189,52 +80,32 @@ Additionally, the lower-frequency long-term planning meant that paths were more 
 Lastly, our work is related to prior research on few-shot learning of skills from demonstrations (\citet{finn2017one,wang2017robust,DBLP:journals/corr/JamesDJ17,DBLP:journals/corr/abs-1806-10166,DBLP:journals/corr/DuanASHSSAZ17}).
 While our method does not require demonstrations to perform new tasks -- only the goal state -- it can readily incorporate demonstrations simply by treating each subsequent frame as a goal. In contrast to prior work on few-shot learning from demonstration that require a meta-training phase (\citet{finn2017one}), our method does not require any expensive task-specific demonstrations for training or a predefined task distribution, only non-specific play data. In contrast to prior work that uses reinforcement learning (\citet{DBLP:journals/corr/abs-1810-05017}), it does not require any reward function or costly RL phase.
 
-% model %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Method}
+## Method
 
-\subsection{Play data}
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/play_data516x360.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<figcaption>
+Figure 1: Play data collected from human tele-operation.
+</figcaption>
+</div>
+
+### Play data
 
 Consider play data, an unbounded sequence of states and actions corresponding to voluntary, repeated, non-stereotyped object interaction between an agent and it's environment.
 
-\begin{equation}
-\mathcal{D} = \{(s_1, a_1), (s_2, a_2), \cdots, (s_T, a_T)\}
-\end{equation}
+$\mathcal{D} = \{(s_1, a_1), (s_2, a_2), \cdots, (s_T, a_T)\}$
 
 In our experiments, we define play data as the states and actions logged during human play teleoperation of a robot in a playground environment. Find an example of such data in \fig{grid_playground}.
 
-\begin{figure}[htb]
-\begin{center}
-\centerline{\includegraphics[width=.8\linewidth]{models/lmp_inference4}}
+<div class="figure">
+<img src="assets/fig/lmp_inference4.svg" style="margin: 0; width: 50%;"/>
+<figcaption>
+Figure 3: 
 \caption{\textbf{Task-agnostic policy inference}.
 The policy is conditioned on a latent plan which is sampled once from a plan distribution (inferred from the current and goal states).
 The policy is also conditioned on the current state as well as the goal state desired by the user.
-}
-\label{fig:inference}
-\end{center}
-\end{figure} 
-
-\begin{figure*}[h]
-\begin{center}
-\centerline{\includegraphics[width=\linewidth]{data/grid_playground}}
-\caption{\textbf{Example of ``play" data:} here we display frames sampled every second from a same sequence and
-ordered from left to right and top to bottom.
-We see the human operator engaging in self-guided interaction with a rectangular object through VR teleoperation.
-In this case, the operator chooses to pick up the object, push it around, uses it to push the door to the left, drops the object inside the cabinet, then finally drops the object off the table.
-Our play dataset consists of 3 hours of unscripted continuous play similar to this sequence.
-Note that subsequences could be considered task demonstrations, e.g. when the agent places the block inside the shelf. Although, they might not necessarily be expert demonstrations, but rather incompletely functional, containing misses, inefficient behavior, etc. Also note that not all the behaviors observed during play are evaluated, e.g. when the agent drops the object off the table or opens the door with the block.
-}
-\label{fig:grid_playground}
-\end{center}
-\end{figure*} 
-
-\begin{figure*}[h]
-\begin{center}
-\centerline{\includegraphics[width=\linewidth]{data/grid_sliding_demo}}
-\caption{\textbf{Example of a supervised demonstration} sequence labeled and segmented for the "sliding" task.
-}
-\label{fig:grid_sliding_demo}
-\end{center}
-\end{figure*} 
+</figcaption>
+</div>
 
 \subsection{\lmpns}
 \label{sec:lmp_description}
@@ -432,12 +303,26 @@ We collected around 3 hours total of playground data and 100 positive demonstrat
 The 18 manipulation tasks defined for evaluation purposes and for training the supervised baseline (BC) are Grasp lift, Grasp upright, Grasp flat, Open sliding, Close sliding, Drawer, Close Drawer, Sweep object, Knock object, Push red button, Push green button, Push blue button, Rotate left, Rotate right, Sweep left, Sweep right, Put into shelf, Pull out of shelf.
 A complete description of each task is available in \asect{tasks}.
 
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/tasks960x540.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 140%;"></video>
+<figcaption>
+Figure 1: 18 tasks defined for evaluation only.
+</figcaption>
+</div>
+
 \subsection{Generalization from play-supervision}
 
 In \fig{debi}, we find that (\lmpns), despite not being trained on task-specific data, generalizes to 18 user-specified manipulation tasks with an average success rate of \textbf{$85.5\%$}. This outperforms a collection of single-task expert models trained entirely on segmented positive task demonstrations (BC), who reach an average $70.3\%$.
 
 \subsection{The value of latent planning}
 Additionally, we find that endowing play-supervised models with latent plan inference helps generalization to downstream tasks, with  \lmp significantly outperforming Play-GCBC (average success of $85.5\%$ vs. $78.4\%$ respectively). Results are summarized in table \ref{tab:debi}.
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/runs960x398.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<figcaption>
+Figure 1: Some successful runs.
+</figcaption>
+</div>
 
 \begin{table}[!h]
 \setlength{\tabcolsep}{0.3em}
@@ -460,28 +345,45 @@ Additionally, we find that endowing play-supervised models with latent plan infe
 }
 \end{table}
 
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/failures960x398.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<figcaption>
+Figure 1: Some failure cases.
+</figcaption>
+</div>
+
 \subsection{Robustness}
 In \fig{robustness}, we see how robust each model is to variations in the environment at test time. To do so, prior to executing trained policies, we perturb the initial position of the robot end effector. We find that the performance of policies trained solely from positive demonstration degrades quickly as the norm of the perturbation increases, and in contrast, models trained on play data are able to robust to the perturbation. We attribute this behavior to the well-studied ``distribution drift" problem in imitation learning (\citet{ross2011dagger}). Intuitively, models trained on expert demonstrations are susceptible to compounding errors when the agent encounters observations outside the expert training distribution. In interpreting these results we posit 1) the lack of diversity in the expert demonstrations allowed policies to overfit to a narrow initial starting distribution and 2) a diverse play dataset, with repeated, non-stereotyped object interaction and continuous collection, has greater coverage of the space of possible state transitions. This would make it more difficult for an initial error (or perturbation) to put the agent in an observation state outside its training distribution, ameliorating the compounding problem.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Discussion} 
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/compose2960x500.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<figcaption>
+Figure 1: Composing 2 tasks.
+</figcaption>
+</div>
+
+## Discussion
 
 \subsection{Discovering tasks unsupervised}
 Here we investigate the latent plan spaced learned by \lmpns, seeing whether or not it is capable of encoding task information despite never being trained with task labels. In \ref{fig:tsne} we embed 512 randomly selected windows from the play dataset as well as all validation task demonstrations, using the $\Phi$ plan recognition model. Surprisingly, we find that despite never being trained explicitly with task labels, \lmp appears to organize its latent plan space functionally. E.g. we find certain regions of space all correspond to drawer manipulation, while other regions correspond to button manipulation.
 
-\begin{figure}[h]
-\begin{center}
-\centerline{\includegraphics[width=\linewidth]{xp/tsne}}
-\caption{\textbf{Latent plan space t-SNE.} Despite never being trained with task labels, \lmp learns to organize a learned latent plan space with respect to tasks. Embedded positive task demonstrations are colored by task type, random embedded play sequences are colored grey.
-}
-\label{fig:tsne}
-\end{center}
-\end{figure} 
-
+<div class="figure">
+<img src="assets/fig/tsne.svg" style="margin: 0; width: 80%;"/>
+<figcaption>
+Figure : 
+</figcaption>
+</div>
 
 \subsection{Emergent Retrying}
 We find qualitative evidence that play-supervised models make multiple attempts to retry the task after initial failure. In \fig{retry_close_sliding} we see an example where our \lmp model makes 3 attempts to close a sliding door before finally achieving it. Similarly in \afig{retry_grasp_upright}, we see that the \lmp model, tasked with picking up an upright object, moves to successfully pick up the object it initially had knocked over. We find that this behavior does not emerge in models trained solely on expert demonstrations. We posit that the unique ``coverage" and ``incompletely functional" properties of play lend support to this behavior. A long, diverse play dataset covers many transitions between arbitrary points in state space. We hypothesize despite initial errors at test time lead the agent off track, it might still have (current state, goal state) support in a play dataset to allowing a replanning mechanism to succeed. Furthermore, the behavior is ``incompletely functional"--an operator might be picking a block up out of a drawer, accidentally drop it, then pick it right back up. This behavior naturally contains information on how to recover from, say, a ``pick and place" task. Furthermore, it would discarded from an expert demonstration dataset, but not a play dataset. 
+
+<div class="figure">
+<video class="b-lazy" data-src="assets/mp4/retry960x398.mp4" type="video/mp4" autoplay muted playsinline loop style="display: block; width: 100%;"></video>
+<figcaption>
+Figure 1: Retry behaviors emerges naturally.
+</figcaption>
+</div>
 
 \subsection{Limitations}
 At present all models and baselines are trained using ground truth state, i.e. full pose of objects, as observations. Our aim in future work is to take raw perceptual observations as inputs. Like other methods training goal-conditioned policies, we assume tasks important to a user can be described using a single goal state. This is overly limiting in cases where a user would like to specify how she wants the agent to do a task, as well as the desired outcome, e.g. ``open the drawer slowly." As mentioned earlier, we could in principle use the trained sequence encoder $\Phi$ to perform this type of full sequence imitation. We hope to explore this in future work. Additionally, we make the assumption that play data is not overly imbalanced with regards to one object interaction versus another. That is, we assume the operator does not simply choose to play with one object in the environment and never the others. This is likely a brittle assumption in the context of lifelong learning, where an agent might prefer certain play interactions over others. In future work, we look to relax this constraint. Finally, we use parameterize the outputs of both $\Phi$ and $\Psi$ as simple unimodal gaussian distributions for simplicity, potentially limiting the expressiveness of our latent plan space. Since Play-LMP can be interepreted as a conditional variational autoencoder, we might in future work consider experimenting with lessons learned from the variational autoencoder literature, for example more flexible variational posteriors (\citet{kingma1606improving}), discrete rather than continuous codes in latent plan space (\citet{van2017neural}), etc.
