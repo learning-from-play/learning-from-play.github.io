@@ -1,6 +1,6 @@
 ## Abstract
 
-We propose learning from teleoperated play data as a way to scale up multi-task robotic skill learning.  *Learning from play* (LfP) offers three main advantages: 1) *It is cheap*. Large amounts of play data can be collected quickly as it does not require scene staging, task segmenting, or resetting to an initial state. 2) *It is general*. It contains both functional and non-functional behavior, relaxing the need for a predefined task distribution. 3) *It is rich*. Play involves repeated, varied behavior and naturally leads to high coverage of the possible interaction space. These properties distinguish play from expert demonstrations, which are rich, but expensive, and scripted unattended data collection, which is cheap, but insufficiently rich. Variety in play, however, presents a multimodality challenge to methods seeking to learn control on top. To this end, we introduce Play-LMP, a method designed to handle variability in the LfP setting by organizing it in an embedding space. Play-LMP jointly learns 1) reusable *latent plan representations* unsupervised from play data and 2) a *single goal-conditioned policy* capable of decoding inferred plans to achieve user-specified tasks. We show empirically that Play-LMP, despite not being trained on task-specific data, is capable of generalizing to 18 complex user-specified manipulation tasks with average success of **85.5%**, outperforming individual models trained on expert demonstrations (success of 70.3%). Furthermore, we find that play-supervised models, unlike their expert-trained counterparts, 1) are more *robust* to perturbations and 2) exhibit *retrying-till-success*. Finally, despite never being trained with task labels, we find that our agent learns to organize its latent plan space around functional tasks. Videos of the performed experiments are available at [here].
+We propose learning from teleoperated play data as a way to scale up multi-task robotic skill learning.  *Learning from play* (LfP) offers three main advantages: 1) *It is cheap*. Large amounts of play data can be collected quickly as it does not require scene staging, task segmenting, or resetting to an initial state. 2) *It is general*. It contains both functional and non-functional behavior, relaxing the need for a predefined task distribution. 3) *It is rich*. Play involves repeated, varied behavior and naturally leads to high coverage of the possible interaction space. These properties distinguish play from expert demonstrations, which are rich, but expensive, and scripted unattended data collection, which is cheap, but insufficiently rich. Variety in play, however, presents a multimodality challenge to methods seeking to learn control on top. To this end, we introduce Play-LMP, a method designed to handle variability in the LfP setting by organizing it in an embedding space. Play-LMP jointly learns 1) reusable *latent plan representations* unsupervised from play data and 2) a *single goal-conditioned policy* capable of decoding inferred plans to achieve user-specified tasks. We show empirically that Play-LMP, despite not being trained on task-specific data, is capable of generalizing to 18 complex user-specified manipulation tasks with average success of 85.5%, outperforming individual models trained on expert demonstrations (success of 70.3%). Furthermore, we find that play-supervised models, unlike their expert-trained counterparts, 1) are more *robust* to perturbations and 2) exhibit *retrying-till-success*. Finally, despite never being trained with task labels, we find that our agent learns to organize its latent plan space around functional tasks. Videos of the performed experiments are available at [here].
 
 [here]: https://learning-from-play.github.io
 
@@ -97,7 +97,7 @@ Figure 1: Play data collected from human tele-operation.
 </figcaption>
 </div>
 
-### Play data
+**Play data**&nbsp;&nbsp;
 
 Consider play data, an unbounded sequence of states and actions corresponding to voluntary, repeated, non-stereotyped object interaction between an agent and it's environment.
 
@@ -115,8 +115,7 @@ The policy is also conditioned on the current state as well as the goal state de
 </figcaption>
 </div>
 
-
-\subsection{\lmpns}
+**Play-LMP**&nbsp;&nbsp;
 \label{sec:lmp_description}
 As described earlier, play is characterized as repeated object interaction that cannot be rigidly stereotyped. In this way, play can be expected to contain multiple ways of achieving the same outcome. An operator playing in an environment with a door isn't looking for the most efficient way to open it repeatedly. They will rather, through the course of curiosity or boredom, naturally experiment with the many ways the door can be opened--fast, slow, by grasping the top of the handle, the bottom of the handle etc. Intuitively, there are many distinct behaviors that might take an agent from a particular initial state to a particular final state.
 The presence of multiple action trajectories for the same (current state, goal state) pair presents a challenge to models seeking to learn goal-conditioned control in the form of counteracting action labels.
@@ -138,18 +137,11 @@ Concretely, our training method consists of three modules:
 
 We now describe each of the modules in detail and the losses used to train them.
 
-\subsubsection{Plan Recognizer}
+**Plan Recognizer**&nbsp;&nbsp;
 Consider a sequence of state action pairs $\tau$ of window length $\kappa$ sampled at random from the play dataset $\mathcal{D}$:
 
-<!-- <div style="text-align:left;">
-<img src="assets/img/formula2.png" style="display: block; margin: auto; width: 75%;"/>
-</div>
- -->
 $\tau = \{(s_{k:k+\kappa}, a_{k:k+\kappa})\} \thicksim \mathcal{D}$
-<!-- \begin{equation}
-\tau = \{(s_{k:k+\kappa}, a_{k:k+\kappa})\} \thicksim \mathcal{D}
-\end{equation}
- -->
+
 We define a stochastic sequence encoder, $\Phi$, referred to throughout the paper as the ``plan recognizer", which takes as input $\tau$ and outputs a distribution over latent plans. Intuitively, the idea is for the encoder not to learn to recognize plan codes as single points, but as
 ellipsoidal regions in latent space, forcing the codes
 to fill the space rather than memorizing individual training data. We parameterize our sequence encoder $\Phi$ with a bidirectional recurrent neural network with parameters $\theta_\Phi$, which produces means and variances in latent plan space from $\tau$.
@@ -161,7 +153,7 @@ Individual latent plans $z$ are sampled from this distribution at training time 
 % The sequence encoder is then trained with action reconstruction loss $\mathcal{L}_{\pi}$ and the self-supervised
 While we could in principle use the sequence encoder at test time to perform full sequence imitation, in this work we restrict our attention to tasks specified by individual user-provided goal states. Therefore, the sequence encoder is only used at training time to help learn a latent plan space, and is discarded at test time.
 
-\subsection{Plan Proposer}
+**Plan Proposer**&nbsp;&nbsp;
 \label{sec:plan_encoder}
 We also define a plan proposal network, $\Psi$, which maps initial state $s_i$ and goal state $s_g$ to a distribution over latent plans. The goal of this network is to output the full distribution of possible plans or behaviors that an agent could execute to get from a particular initial state to a particular goal state. We parameterize the plan encoder $\Psi$ with a multi-layer neural network with parameters $\theta_\Psi$, which produces means $\mu_\Psi$ and variances $\sigma_\Psi$ in latent plan space from the $s_i$ to $s_g$\footnote{For simplicity, we choose a unimodal multivariate Gaussian to represent distributions in latent plan space; nothing in principle stops us from using more complicated distributions}. 
 
@@ -173,44 +165,28 @@ $\mathcal{L}_{KL} = KL\Big(\mathcal{N}(z|\mu_\Phi, diag(\sigma_\Phi^2)) ~||~ \ma
 
 Intuitively, $\mathcal{L}_{\textrm{KL}}$ forces the plan distribution output by the planner $\Psi$ to place high probability on actual latent plans recognized during play. Simultaneously it enforces a regular geometry over codes output by the plan recognizer $\Phi$, allowing plausible plans to be sampled at test time from regions of latent space that have high probability under the conditional prior $\Psi$.
 
-\subsection{Resampling latent plans at test time}
+**Resampling latent plans at test time**&nbsp;&nbsp;
 Note that at training time, $s_i$ simply corresponds to the first state in the sampled sequence $\tau$. At test time, we allow the agent to resample latent plans at frequency $\kappa$ (matching the planning horizon it was trained with). That is, it is free to replan using the current state $s_i$ and fixed goal state $s_g$ every $\kappa$ steps. In our experiments, our agent gets observations and takes low-level actions at $30$hz. We set $\kappa$ to $32$, meaning that the agent replans at roughly $1$hz. See Fig. \ref{fig:inference} for details.
 
 %Next we describe how we train policies conditioned on goal state and the encoded plan state output by the $\Phi$ encoder.
 % Compared to the GCBC baseline, the latent variables $z$ allow for modeling multiple solutions in the conditional distribution of actions, given current and goal state.
 
-\subsection{Task agnostic, goal and latent plan conditioned policy}
+**Task agnostic, goal and latent plan conditioned policy**&nbsp;&nbsp;
 Here we describe how we train our task-agnostic policy to achieve user-specified goals. Our policy $\pi$, parameterized by $\theta_\pi$, is an RNN that takes as input current state $s_t$, goal state $s_g$, and a sampled latent plan $z$, and outputs action $a_t$.
 The policy is trained via maximum likelihood to reconstruct the actions taken during the sequence sampled from play.
 To obtain action predictions at training time, we sample $z$ once from the distribution output by $\Phi$ (which has been conditioned on the entire state-action sequence $\tau$), then for each timestep $t$ in the sequence, we compute actions $a_t$ from inputs $s_t$, $s_g$, and $z$. The loss term $\mathcal{L}_{\pi}$ corresponding to the action prediction is determined as follows:\footnote{We can optionally also have the decoder output state predictions, and adds another loss term penalizing a state reconstruction loss.}
 
-<!-- <div style="text-align:left;">
-<img src="assets/img/formula6.png" style="display: block; margin: auto; width: 75%;"/>
-</div> -->
-
 $\mathcal{L}_\pi = -\frac{1}{\kappa} \sum_{t=k}^{k+\kappa} log\big(\pi(a_t | s_t, s_g, z)\big)$
-<!-- \begin{equation}
-    \mathcal{L}_\pi = -\frac{1}{\kappa} \sum_{t=k}^{k+\kappa} \textrm{ln}\big(\pi(a_t | s_t, s_g, z)\big)
-    \label{eq:action_loss}
-\end{equation} -->
 
 As mentioned earlier, at test time $\Phi$ is discarded and we sample $z$ from the distribution output by plan proposal network $\Psi$, conditioned on $s_t$, $s_g$ as described in Section \ref{sec:plan_encoder}.
 The motivation for this architecture is to relieve the policy from having to representing multiple valid action trajectory solutions implicitly. Since $\Phi$ processes the full state-action sequence $\tau$ to be reconstructed, a plan sampled from $\Phi$ should provide disambiguating information to the policy at training time, converting a multimodal problem (learn every plan) to a unimodal one (learn to decode this specific plan).
 
-\subsection{Full objective}
+**{Full objective}**&nbsp;&nbsp;
 Following \citet{higgins2016beta}, we introduce a weight
 $\beta$, controlling $\mathcal{L}_{\textrm{KL}}$'s contribution to the total loss. Setting $\beta$ \textless 1 was sufficient to avoid ``posterior collapse'' (\citet{45404}), a commonly identified problem in VAE training in which an over-regularized model combined with a powerful decoder tends to ignores the latent variable $z$. The full \lmp training objective is:
 
-<!-- <div style="text-align:left;">
-<img src="assets/img/formula7.png" style="display: block; margin: auto; width: 75%;"/>
-</div> -->
-
 $\mathcal{L}_{LMP} = \frac{1}{\kappa} \mathcal{L}_\pi + \beta \mathcal{L}_{KL}$
-<!-- \begin{equation}
-\mathcal{L}_{LMP} = \frac{1}{\kappa} \mathcal{L}_\pi + \beta \mathcal{L}_{\textrm{KL}}
-\label{eq:total_loss}
-\end{equation}
- -->
+
 We describe the full \lmp minibatch training pseudocode in Algorithm~\ref{alg:lmp}.
 
 \begin{algorithm}[tb]
@@ -231,7 +207,7 @@ We describe the full \lmp minibatch training pseudocode in Algorithm~\ref{alg:lm
   \end{algorithmic}
 \end{algorithm}
 
-\subsection{A connection to conditional variational autoencoder}
+**A connection to conditional variational autoencoder**&nbsp;&nbsp;
 \lmp can be interpreted as a conditional variational sequence to sequence autoencoder \citet{NIPS2015_5775}, autoencoding random experiences extracted from play memory through a latent plan space. In the framework of variational inference, we can view the plan recognizer $\Phi$ as a \textit{learned posterior recognition model} $q_\Phi(z|\tau)$. Additionally, we can view the plan proposal network $\Psi$ as a \textit{learned conditional prior} $p_\Psi(z|s_t,s_g)$. The full objective is similar to \citet{higgins2016beta}.
 
 
@@ -256,8 +232,7 @@ The \lmp model is the most robust to changes to initial agent position.
 \end{center}
 \end{figure} 
 
-
-\subsection{\gcbcns}
+**Play-GCBC**&nbsp;&nbsp;
 We also train a play-supervised goal conditioned policy in a similar fashion to \lmpns, but with no explicit latent plan inference. We denote this policy by $\pi_{GCBC}$ and parameterized it by $\theta_{GCBC}$.That is, we train an RNN to maximize the likelihood of an action sequence sampled from play data, given the corresponding state sequence. The policy is conditioned on current state $s_t$ and goal state $s_g$ as before. We call this \gcbc (play-supervised goal-conditioned behavioral cloning), and describe the minibatch training pseudo-code in Algorithm~\ref{alg:playgcbc}.
 
 \begin{algorithm}[tb]
@@ -295,8 +270,7 @@ The policy is aiming the reach the goal state (left), fails multiple times but r
 \end{center}
 \end{figure*} 
 
-% experiments %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Experiments}
+**Experiments**&nbsp;&nbsp;
 
 In this section we describe large scale experiments designed to answer the following questions:
 \begin{itemize}
@@ -307,16 +281,16 @@ In this section we describe large scale experiments designed to answer the follo
 \item Does \lmp learn a semantically meaningful plan embedding space despite never being trained with task labels?
 \end{itemize}
 
-\subsection{Multi-task Control}
+**Multi-task Control**&nbsp;&nbsp;
 Here we describe our multi-task robotic manipulation training and evaluation environment, designed to answer the above questions.
 
-\subsubsection{Training Data}
+**Training Data**&nbsp;&nbsp;
 An updated version of the Mujoco HAPTIX system is used to collect teleoperation demonstration data \cite{kumar2015mujoco}. Two types of demonstration data are collected for this experiment: 1) `play' data, collected without any specific task in mind but meant to cover many different possible object interactions, which is fed to \lmp and \gcbc and 2) segmented positive demonstrations of individual tasks (`open a door', `push a button', etc.), fed to the individual BC baseline models. Our environment
 exposes arm and object position and orientations as observations to the agent. We model an 8-dof continuous action space representing agent end effector position, rotation, and gripper control.
 See an example of the playground data collected in \fig{grid_playground} and an example of the positive behavioral cloning demonstrations in \fig{grid_sliding_demo}.
 We collected around 3 hours total of playground data and 100 positive demonstrations each of 18 tasks (1800 demonstrations total). We collect 10 positive demonstrations of each task to use for validation and 10 for test. Tasks are specified to goal-conditioned models by resetting the environment to the initial state of the demonstration, and feeding in the final state as the goal to reach.
 
-\subsubsection{Evaluation Tasks}
+**Evaluation Tasks**&nbsp;&nbsp;
 The 18 manipulation tasks defined for evaluation purposes and for training the supervised baseline (BC) are Grasp lift, Grasp upright, Grasp flat, Open sliding, Close sliding, Drawer, Close Drawer, Sweep object, Knock object, Push red button, Push green button, Push blue button, Rotate left, Rotate right, Sweep left, Sweep right, Put into shelf, Pull out of shelf.
 A complete description of each task is available in \asect{tasks}.
 
@@ -327,11 +301,11 @@ Figure 1: 18 tasks defined for evaluation only.
 </figcaption>
 </div>
 
-\subsection{Generalization from play-supervision}
+**Generalization from play-supervision**&nbsp;&nbsp;
 
 In \fig{debi}, we find that (\lmpns), despite not being trained on task-specific data, generalizes to 18 user-specified manipulation tasks with an average success rate of \textbf{$85.5\%$}. This outperforms a collection of single-task expert models trained entirely on segmented positive task demonstrations (BC), who reach an average $70.3\%$.
 
-\subsection{The value of latent planning}
+**The value of latent planning**&nbsp;&nbsp;
 Additionally, we find that endowing play-supervised models with latent plan inference helps generalization to downstream tasks, with  \lmp significantly outperforming Play-GCBC (average success of $85.5\%$ vs. $78.4\%$ respectively). Results are summarized in table \ref{tab:debi}.
 
 <div class="figure">
@@ -369,7 +343,7 @@ Figure 1: Some failure cases.
 </figcaption>
 </div>
 
-\subsection{Robustness}
+**Robustness**&nbsp;&nbsp;
 In \fig{robustness}, we see how robust each model is to variations in the environment at test time. To do so, prior to executing trained policies, we perturb the initial position of the robot end effector. We find that the performance of policies trained solely from positive demonstration degrades quickly as the norm of the perturbation increases, and in contrast, models trained on play data are able to robust to the perturbation. We attribute this behavior to the well-studied ``distribution drift" problem in imitation learning (\citet{ross2011dagger}). Intuitively, models trained on expert demonstrations are susceptible to compounding errors when the agent encounters observations outside the expert training distribution. In interpreting these results we posit 1) the lack of diversity in the expert demonstrations allowed policies to overfit to a narrow initial starting distribution and 2) a diverse play dataset, with repeated, non-stereotyped object interaction and continuous collection, has greater coverage of the space of possible state transitions. This would make it more difficult for an initial error (or perturbation) to put the agent in an observation state outside its training distribution, ameliorating the compounding problem.
 
 
@@ -382,7 +356,7 @@ Figure 1: Composing 2 tasks.
 
 ## Discussion
 
-\subsection{Discovering tasks unsupervised}
+**Discovering tasks unsupervised**&nbsp;&nbsp;
 Here we investigate the latent plan spaced learned by \lmpns, seeing whether or not it is capable of encoding task information despite never being trained with task labels. In \ref{fig:tsne} we embed 512 randomly selected windows from the play dataset as well as all validation task demonstrations, using the $\Phi$ plan recognition model. Surprisingly, we find that despite never being trained explicitly with task labels, \lmp appears to organize its latent plan space functionally. E.g. we find certain regions of space all correspond to drawer manipulation, while other regions correspond to button manipulation.
 
 <div class="figure">
@@ -392,7 +366,7 @@ Figure :
 </figcaption>
 </div>
 
-\subsection{Emergent Retrying}
+**Emergent Retrying**&nbsp;&nbsp;
 We find qualitative evidence that play-supervised models make multiple attempts to retry the task after initial failure. In \fig{retry_close_sliding} we see an example where our \lmp model makes 3 attempts to close a sliding door before finally achieving it. Similarly in \afig{retry_grasp_upright}, we see that the \lmp model, tasked with picking up an upright object, moves to successfully pick up the object it initially had knocked over. We find that this behavior does not emerge in models trained solely on expert demonstrations. We posit that the unique ``coverage" and ``incompletely functional" properties of play lend support to this behavior. A long, diverse play dataset covers many transitions between arbitrary points in state space. We hypothesize despite initial errors at test time lead the agent off track, it might still have (current state, goal state) support in a play dataset to allowing a replanning mechanism to succeed. Furthermore, the behavior is ``incompletely functional"--an operator might be picking a block up out of a drawer, accidentally drop it, then pick it right back up. This behavior naturally contains information on how to recover from, say, a ``pick and place" task. Furthermore, it would discarded from an expert demonstration dataset, but not a play dataset. 
 
 <div class="figure">
@@ -402,11 +376,10 @@ Figure 1: Retry behaviors emerges naturally.
 </figcaption>
 </div>
 
-\subsection{Limitations}
+**Limitations**&nbsp;&nbsp;
 At present all models and baselines are trained using ground truth state, i.e. full pose of objects, as observations. Our aim in future work is to take raw perceptual observations as inputs. Like other methods training goal-conditioned policies, we assume tasks important to a user can be described using a single goal state. This is overly limiting in cases where a user would like to specify how she wants the agent to do a task, as well as the desired outcome, e.g. ``open the drawer slowly." As mentioned earlier, we could in principle use the trained sequence encoder $\Phi$ to perform this type of full sequence imitation. We hope to explore this in future work. Additionally, we make the assumption that play data is not overly imbalanced with regards to one object interaction versus another. That is, we assume the operator does not simply choose to play with one object in the environment and never the others. This is likely a brittle assumption in the context of lifelong learning, where an agent might prefer certain play interactions over others. In future work, we look to relax this constraint. Finally, we use parameterize the outputs of both $\Phi$ and $\Psi$ as simple unimodal gaussian distributions for simplicity, potentially limiting the expressiveness of our latent plan space. Since Play-LMP can be interepreted as a conditional variational autoencoder, we might in future work consider experimenting with lessons learned from the variational autoencoder literature, for example more flexible variational posteriors (\citet{kingma1606improving}), discrete rather than continuous codes in latent plan space (\citet{van2017neural}), etc.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusion}
+**Conclusion**&nbsp;&nbsp;
 In this work, we emphasize the benefits of training a single, task-agnostic, goal-conditioned policy on unstructured, unsegmented play data, as opposed to training individual models from scratch for each task. We stress that play data strikes a good balance on the cost-richness tradeoff, compared to expensive expert demonstrations and insufficiently rich scripted collection.
 We introduce a novel self-supervised plan representation learning and goal-conditioned policy learning algorithm, \lmpns, designed to scale to a difficult behavioral cloning regime with large amount of natural variability in the data. Surprisingly we find that its latent plan space learns to embed task semantics despite never being trained with task labels. Finally we find that models trained on play data are far more robust to perturbation than models trained solely on positive demonstrations, and exhibit natural failure recovery despite not being trained explicitly to do so. 
 \label{sec:conclusion}
