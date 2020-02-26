@@ -14,9 +14,10 @@ BibTeX citation
 
 <pre class="citation long">@article{lynch2019play,
   title={Learning Latent Plans from Play},
-  author={Lynch, Corey and Khansari, Mohi and Xiao, Ted and Kumar, Vikash and Tompson, Jonathan and Levine, Sergey and Sermanet, Pierre},
-  booktitle = {{C}onference on {R}obot {L}earning ({CoRL})},
-  year={2019}
+  author={Lynch, Corey and Khansari, Mohi and Xiao, Ted and Kumar, Vikash
+          and Tompson, Jonathan and Levine, Sergey and Sermanet, Pierre},
+  journal={Conference on Robot Learning (CoRL)},
+  year={2019},
   url       = {https://arxiv.org/abs/1903.01973},
   biburl    = {https://github.com/sermanet/sermanet.github.io/blob/master/assets/bib/Lynch2019Play.bib},
 }</pre>
