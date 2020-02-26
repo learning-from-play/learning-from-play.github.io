@@ -15,6 +15,6 @@ BibTeX citation
 <pre class="citation long">@article{lynch2019play,
   title={Learning Latent Plans from Play},
   author={Lynch, Corey and Khansari, Mohi and Xiao, Ted and Kumar, Vikash and Tompson, Jonathan and Levine, Sergey and Sermanet, Pierre},
-  journal={arXiv preprint arXiv:1903.01973},
+  booktitle = {{C}onference on {R}obot {L}earning ({CoRL})},
   year={2019}
 }</pre>
