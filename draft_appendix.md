@@ -17,4 +17,6 @@ BibTeX citation
   author={Lynch, Corey and Khansari, Mohi and Xiao, Ted and Kumar, Vikash and Tompson, Jonathan and Levine, Sergey and Sermanet, Pierre},
   booktitle = {{C}onference on {R}obot {L}earning ({CoRL})},
   year={2019}
+  url       = {https://arxiv.org/abs/1903.01973},
+  biburl    = {https://github.com/sermanet/sermanet.github.io/blob/master/assets/bib/Lynch2019Play.bib},
 }</pre>
